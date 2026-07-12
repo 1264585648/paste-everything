@@ -24,16 +24,6 @@
     </header>
 
     <main class="workspace">
-      <section class="hero-card">
-        <div>
-          <p class="eyebrow">无需上传服务器 · 纯静态部署</p>
-          <h1>粘贴任意常见数据，立即查看、校验和编辑</h1>
-          <p class="hero-copy">当前支持 JSON、XML、CSV 与 TXT。自动识别格式，并提供树形、表格与原文视图。</p>
-        </div>
-        <div class="format-pills" aria-label="支持的格式">
-          <span>JSON</span><span>XML</span><span>CSV</span><span>TXT</span>
-        </div>
-      </section>
 
       <section class="toolbar" aria-label="数据工具栏">
         <div class="toolbar-group">
@@ -70,7 +60,10 @@
               <button id="clearButton" class="text-button" type="button">清空</button>
             </div>
           </div>
-          <textarea id="editor" spellcheck="false" aria-label="数据编辑器" placeholder="在这里粘贴 JSON、XML、CSV 或文本…"></textarea>
+          <div class="editor-body">
+            <pre id="lineNumbers" class="line-numbers" aria-hidden="true">1</pre>
+            <textarea id="editor" spellcheck="false" aria-label="数据编辑器" placeholder="在这里粘贴 JSON、XML、CSV 或文本…"></textarea>
+          </div>
           <div class="drop-hint">也可以将文件拖放到此处</div>
         </article>
 
@@ -81,9 +74,15 @@
               <button class="tab" data-view="table" role="tab" aria-selected="false">表格</button>
               <button class="tab" data-view="raw" role="tab" aria-selected="false">原文</button>
             </div>
-            <div class="search-box">
-              <input id="searchInput" type="search" placeholder="搜索内容" aria-label="搜索预览内容" />
-              <span id="searchCount">0</span>
+            <div class="preview-actions">
+              <div id="treeActions" class="tree-actions" aria-label="结构树操作">
+                <button id="expandAllButton" type="button" title="展开全部">展开</button>
+                <button id="collapseAllButton" type="button" title="折叠全部">折叠</button>
+              </div>
+              <div class="search-box">
+                <input id="searchInput" type="search" placeholder="搜索内容" aria-label="搜索预览内容" />
+                <span id="searchCount">0</span>
+              </div>
             </div>
           </div>
           <div id="preview" class="preview-content" aria-live="polite"></div>
