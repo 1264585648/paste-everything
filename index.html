@@ -6,6 +6,7 @@
   <meta name="description" content="纯静态、浏览器本地运行的通用数据可视化与编辑工具。" />
   <title>Data Lens · 通用数据查看器</title>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./layout.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -19,6 +20,7 @@
       </a>
       <div class="topbar-actions">
         <span class="privacy-badge">仅在浏览器本地处理</span>
+        <button id="fullscreenToggle" class="icon-button" type="button" title="进入全屏工作区" aria-label="进入全屏工作区">⤢</button>
         <button id="themeToggle" class="icon-button" type="button" title="切换深色模式" aria-label="切换深色模式">◐</button>
       </div>
     </header>
@@ -126,5 +128,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="./app.js"></script>
+  <script src="./fullscreen.js"></script>
 </body>
 </html>
