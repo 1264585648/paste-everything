@@ -32,6 +32,16 @@
             <span>打开文件</span>
           </label>
           <button id="pasteButton" type="button">从剪贴板粘贴</button>
+          <label class="format-selector" title="默认自动识别，也可以手动指定数据类型">
+            <span>类型</span>
+            <select id="formatSelect" aria-label="选择数据类型">
+              <option value="auto">自动识别</option>
+              <option value="json">JSON</option>
+              <option value="xml">XML</option>
+              <option value="csv">CSV</option>
+              <option value="txt">TXT</option>
+            </select>
+          </label>
           <select id="sampleSelect" aria-label="载入示例">
             <option value="">载入示例…</option>
             <option value="json">JSON 示例</option>
