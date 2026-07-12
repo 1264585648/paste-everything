@@ -5,6 +5,7 @@
   const editor = $('editor');
   const preview = $('preview');
   const searchInput = $('searchInput');
+  const lineNumbers = $('lineNumbers');
   const state = { type: 'txt', parsed: null, error: null, view: 'tree', fileName: 'data', search: '' };
   const samples = {
     json: JSON.stringify({ project: 'Data Lens', version: '1.0.0', static: true, formats: ['JSON', 'XML', 'CSV', 'TXT'], features: { localProcessing: true, cloudflarePages: true } }, null, 2),
@@ -101,17 +102,20 @@
     return text;
   }
 
-  function createTree(value, key = null, root = true) {
+  function createTree(value, key = null, root = true, path = '$') {
     const ul = document.createElement('ul');
     if (root) ul.className = 'tree-root';
     const li = document.createElement('li');
     const row = document.createElement('div');
     row.className = 'tree-row';
+    row.dataset.path = path;
+    row.title = path;
     const branch = value !== null && typeof value === 'object';
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = `tree-toggle${branch ? '' : ' placeholder'}`;
     toggle.textContent = '▼';
+    toggle.setAttribute('aria-expanded', branch ? 'true' : 'false');
     row.appendChild(toggle);
     if (key !== null) {
       const label = document.createElement('span');
@@ -127,18 +131,34 @@
       row.appendChild(span); li.appendChild(row); ul.appendChild(li); return ul;
     }
     const entries = Array.isArray(value) ? value.map((v, i) => [i, v]) : Object.entries(value);
+    const dot = document.createElement('span');
+    dot.className = 'tree-type-dot';
     const meta = document.createElement('span');
     meta.className = 'tree-meta';
-    meta.textContent = `${Array.isArray(value) ? 'Array' : 'Object'}(${entries.length})`;
-    row.appendChild(meta); li.appendChild(row);
+    meta.textContent = `${Array.isArray(value) ? 'Array' : 'Object'} · ${entries.length}`;
+    row.append(dot, meta); li.appendChild(row);
     const children = document.createElement('ul');
-    entries.forEach(([k, v]) => children.appendChild(createTree(v, k, false).firstChild));
+    entries.forEach(([k, v]) => {
+      const childPath = Array.isArray(value) ? `${path}[${k}]` : `${path}.${k}`;
+      children.appendChild(createTree(v, k, false, childPath).firstChild);
+    });
     li.appendChild(children); ul.appendChild(li);
     toggle.onclick = () => {
-      children.classList.toggle('tree-hidden');
-      toggle.textContent = children.classList.contains('tree-hidden') ? '▶' : '▼';
+      const collapsed = children.classList.toggle('tree-hidden');
+      toggle.textContent = collapsed ? '▶' : '▼';
+      toggle.setAttribute('aria-expanded', String(!collapsed));
     };
     return ul;
+  }
+
+  function setTreeExpanded(expanded) {
+    preview.querySelectorAll('.tree-toggle:not(.placeholder)').forEach(toggle => {
+      const children = toggle.closest('.tree-row')?.nextElementSibling;
+      if (!children) return;
+      children.classList.toggle('tree-hidden', !expanded);
+      toggle.textContent = expanded ? '▼' : '▶';
+      toggle.setAttribute('aria-expanded', String(expanded));
+    });
   }
 
   function tableData() {
@@ -174,6 +194,7 @@
   }
 
   function render() {
+    $('treeActions').hidden = state.view !== 'tree';
     if (!editor.value.trim()) { preview.innerHTML = '<div class="empty-state"><div><strong>等待数据</strong><span>粘贴、输入或打开一个文件。</span></div></div>'; $('searchCount').textContent = '0'; return; }
     if (state.error) { preview.innerHTML = `<div class="empty-state"><div><strong>无法解析</strong><span>${escapeHtml(state.error.message)}</span></div></div>`; return; }
     if (state.view === 'raw') { preview.innerHTML = `<pre class="raw-code">${syntax(editor.value)}</pre>`; return; }
@@ -192,6 +213,7 @@
 
   function refresh() {
     const text = editor.value;
+    updateLineNumbers();
     state.type = detectType(text, state.fileName);
     $('formatBadge').textContent = state.type.toUpperCase();
     try {
@@ -209,6 +231,11 @@
     $('summaryValue').textContent = `${text.length.toLocaleString()} 字符`;
     $('summaryMessage').textContent = state.type === 'csv' && state.parsed ? `${lines} 行 · ${state.parsed.headers.length} 列` : `${lines} 行`;
     render();
+  }
+
+  function updateLineNumbers() {
+    const count = Math.max(1, editor.value.split(/\r?\n/).length);
+    lineNumbers.textContent = Array.from({ length: count }, (_, index) => index + 1).join('\n');
   }
 
   function updateCursor() {
@@ -238,7 +265,8 @@
   }
 
   let timer;
-  editor.addEventListener('input', () => { state.fileName = 'data'; clearTimeout(timer); timer = setTimeout(refresh, 120); updateCursor(); });
+  editor.addEventListener('input', () => { state.fileName = 'data'; clearTimeout(timer); timer = setTimeout(refresh, 120); updateCursor(); updateLineNumbers(); });
+  editor.addEventListener('scroll', () => { lineNumbers.scrollTop = editor.scrollTop; });
   ['click', 'keyup'].forEach(name => editor.addEventListener(name, updateCursor));
   editor.addEventListener('keydown', event => {
     if (event.key === 'Tab') { event.preventDefault(); editor.setRangeText('  ', editor.selectionStart, editor.selectionEnd, 'end'); editor.dispatchEvent(new Event('input')); }
@@ -249,6 +277,8 @@
     state.view = tab.dataset.view; render();
   }));
   searchInput.addEventListener('input', () => { state.search = searchInput.value; render(); });
+  $('expandAllButton').onclick = () => setTreeExpanded(true);
+  $('collapseAllButton').onclick = () => setTreeExpanded(false);
 
   function readFile(file) {
     if (!file) return;
@@ -296,5 +326,6 @@
   try { root.dataset.theme = localStorage.getItem('data-lens-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch { root.dataset.theme = 'light'; }
   $('themeToggle').onclick = () => { root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; try { localStorage.setItem('data-lens-theme', root.dataset.theme); } catch {} };
 
+  updateLineNumbers();
   refresh();
 })();
