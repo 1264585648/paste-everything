@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="纯静态、浏览器本地运行的通用数据可视化与编辑工具。" />
+  <title>Data Lens · 通用数据查看器</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Data Lens 首页">
+        <span class="brand-mark" aria-hidden="true">DL</span>
+        <span>
+          <strong>Data Lens</strong>
+          <small>通用数据查看与编辑</small>
+        </span>
+      </a>
+      <div class="topbar-actions">
+        <span class="privacy-badge">仅在浏览器本地处理</span>
+        <button id="themeToggle" class="icon-button" type="button" title="切换深色模式" aria-label="切换深色模式">◐</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="hero-card">
+        <div>
+          <p class="eyebrow">无需上传服务器 · 纯静态部署</p>
+          <h1>粘贴任意常见数据，立即查看、校验和编辑</h1>
+          <p class="hero-copy">当前支持 JSON、XML、CSV 与 TXT。自动识别格式，并提供树形、表格与原文视图。</p>
+        </div>
+        <div class="format-pills" aria-label="支持的格式">
+          <span>JSON</span><span>XML</span><span>CSV</span><span>TXT</span>
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="数据工具栏">
+        <div class="toolbar-group">
+          <label class="file-button">
+            <input id="fileInput" type="file" accept=".json,.xml,.csv,.txt,.log,.md,text/*,application/json,application/xml" hidden />
+            <span>打开文件</span>
+          </label>
+          <button id="pasteButton" type="button">从剪贴板粘贴</button>
+          <select id="sampleSelect" aria-label="载入示例">
+            <option value="">载入示例…</option>
+            <option value="json">JSON 示例</option>
+            <option value="xml">XML 示例</option>
+            <option value="csv">CSV 示例</option>
+            <option value="txt">TXT 示例</option>
+          </select>
+        </div>
+        <div class="toolbar-group toolbar-group-right">
+          <button id="formatButton" type="button">格式化</button>
+          <button id="minifyButton" type="button">压缩</button>
+          <button id="copyButton" type="button">复制</button>
+          <button id="downloadButton" class="primary-button" type="button">下载</button>
+        </div>
+      </section>
+
+      <section id="dropZone" class="editor-layout">
+        <article class="panel editor-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <h2>编辑器</h2>
+              <span id="formatBadge" class="format-badge">TXT</span>
+            </div>
+            <div class="editor-meta">
+              <span id="cursorPosition">第 1 行，第 1 列</span>
+              <button id="clearButton" class="text-button" type="button">清空</button>
+            </div>
+          </div>
+          <textarea id="editor" spellcheck="false" aria-label="数据编辑器" placeholder="在这里粘贴 JSON、XML、CSV 或文本…"></textarea>
+          <div class="drop-hint">也可以将文件拖放到此处</div>
+        </article>
+
+        <article class="panel preview-panel">
+          <div class="panel-header preview-header">
+            <div class="tabs" role="tablist" aria-label="预览模式">
+              <button class="tab active" data-view="tree" role="tab" aria-selected="true">结构</button>
+              <button class="tab" data-view="table" role="tab" aria-selected="false">表格</button>
+              <button class="tab" data-view="raw" role="tab" aria-selected="false">原文</button>
+            </div>
+            <div class="search-box">
+              <input id="searchInput" type="search" placeholder="搜索内容" aria-label="搜索预览内容" />
+              <span id="searchCount">0</span>
+            </div>
+          </div>
+          <div id="preview" class="preview-content" aria-live="polite"></div>
+        </article>
+      </section>
+
+      <section class="status-grid" aria-label="数据状态">
+        <article class="status-card">
+          <span class="status-label">解析状态</span>
+          <strong id="parseStatus" class="status-value neutral">等待输入</strong>
+          <p id="parseMessage">粘贴或打开文件后自动解析。</p>
+        </article>
+        <article class="status-card">
+          <span class="status-label">数据概览</span>
+          <strong id="summaryValue" class="status-value">0 字符</strong>
+          <p id="summaryMessage">0 行</p>
+        </article>
+        <article class="status-card">
+          <span class="status-label">隐私</span>
+          <strong class="status-value success">本地处理</strong>
+          <p>数据不会离开当前浏览器。</p>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <span>Data Lens MVP</span>
+      <span>适合部署到 Cloudflare Pages、GitHub Pages 或任意静态主机</span>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
