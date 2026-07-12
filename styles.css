@@ -91,6 +91,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 
 .workspace { width: min(1500px, calc(100% - 40px)); margin: 18px auto 36px; flex: 1; }
 
+
 .toolbar {
   display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
   margin: 18px 0;
@@ -103,6 +104,20 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   border: 1px solid var(--border); border-radius: 10px; padding: 0 13px;
   background: var(--surface-strong); color: var(--text); cursor: pointer; font-size: 13px; font-weight: 650;
 }
+.format-selector {
+  min-height: 38px; display: inline-flex; align-items: center; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface-strong);
+}
+.format-selector > span {
+  align-self: stretch; display: inline-flex; align-items: center; padding: 0 9px;
+  border-right: 1px solid var(--border); color: var(--muted); background: var(--surface-muted);
+  font-size: 11px; font-weight: 750;
+}
+.format-selector select {
+  min-height: 36px; border: 0; border-radius: 0; padding: 0 28px 0 10px; background: transparent;
+}
+.format-selector:focus-within { border-color: color-mix(in srgb, var(--accent) 48%, var(--border)); }
+.format-badge.manual { background: var(--success-soft); color: var(--success); }
 .toolbar button:hover, .toolbar select:hover, .file-button:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .toolbar .primary-button { background: var(--accent); border-color: var(--accent); color: white; }
 
@@ -235,6 +250,8 @@ footer { display: flex; justify-content: space-between; gap: 20px; padding: 24px
   .privacy-badge { display: none; }
   .toolbar-group, .toolbar-group-right { width: 100%; }
   .toolbar button, .toolbar select, .file-button { flex: 1 1 auto; }
+  .format-selector { flex: 1 1 auto; }
+  .format-selector select { flex: 1; }
   .preview-header { height: auto; min-height: 58px; align-items: stretch; flex-direction: column; padding: 0 12px 10px; }
   .tabs { height: 48px; }
   .preview-actions { width: 100%; }
