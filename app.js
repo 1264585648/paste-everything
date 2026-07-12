@@ -6,7 +6,8 @@
   const preview = $('preview');
   const searchInput = $('searchInput');
   const lineNumbers = $('lineNumbers');
-  const state = { type: 'txt', parsed: null, error: null, view: 'tree', fileName: 'data', search: '' };
+  const formatSelect = $('formatSelect');
+  const state = { type: 'txt', formatMode: 'auto', parsed: null, error: null, view: 'tree', fileName: 'data', search: '' };
   const samples = {
     json: JSON.stringify({ project: 'Data Lens', version: '1.0.0', static: true, formats: ['JSON', 'XML', 'CSV', 'TXT'], features: { localProcessing: true, cloudflarePages: true } }, null, 2),
     xml: '<?xml version="1.0" encoding="UTF-8"?>\n<catalog>\n  <tool id="json"><name>JSON Viewer</name><enabled>true</enabled></tool>\n  <tool id="xml"><name>XML Viewer</name><enabled>true</enabled></tool>\n</catalog>',
@@ -49,6 +50,10 @@
       return n > 0 && lines.slice(1, 6).every(line => countDelimiter(line, d) === n);
     })) return 'csv';
     return 'txt';
+  }
+
+  function getEffectiveType(text, fileName = '') {
+    return state.formatMode === 'auto' ? detectType(text, fileName) : state.formatMode;
   }
 
   function parseCsv(text) {
@@ -214,13 +219,16 @@
   function refresh() {
     const text = editor.value;
     updateLineNumbers();
-    state.type = detectType(text, state.fileName);
-    $('formatBadge').textContent = state.type.toUpperCase();
+    state.type = getEffectiveType(text, state.fileName);
+    const formatBadge = $('formatBadge');
+    formatBadge.textContent = state.type.toUpperCase();
+    formatBadge.classList.toggle('manual', state.formatMode !== 'auto');
+    formatBadge.title = state.formatMode === 'auto' ? `自动识别为 ${state.type.toUpperCase()}` : `已手动指定为 ${state.type.toUpperCase()}`;
     try {
       state.parsed = parse(text, state.type); state.error = null;
       $('parseStatus').textContent = text.trim() ? `${state.type.toUpperCase()} 有效` : '等待输入';
       $('parseStatus').className = `status-value ${text.trim() ? 'success' : 'neutral'}`;
-      $('parseMessage').textContent = text.trim() ? '解析完成，可以继续编辑或切换视图。' : '粘贴或打开文件后自动解析。';
+      $('parseMessage').textContent = text.trim() ? `${state.formatMode === 'auto' ? '自动识别' : '手动指定'}为 ${state.type.toUpperCase()}，解析完成。` : '粘贴或打开文件后自动解析，也可以手动选择类型。';
     } catch (error) {
       state.parsed = null; state.error = error;
       $('parseStatus').textContent = `${state.type.toUpperCase()} 无效`;
@@ -279,6 +287,11 @@
   searchInput.addEventListener('input', () => { state.search = searchInput.value; render(); });
   $('expandAllButton').onclick = () => setTreeExpanded(true);
   $('collapseAllButton').onclick = () => setTreeExpanded(false);
+  formatSelect.onchange = event => {
+    state.formatMode = event.target.value;
+    refresh();
+    toast(state.formatMode === 'auto' ? `已切换为自动识别：${state.type.toUpperCase()}` : `已手动指定为 ${state.type.toUpperCase()}`);
+  };
 
   function readFile(file) {
     if (!file) return;
@@ -299,7 +312,7 @@
   $('formatButton').onclick = () => {
     try {
       if (!editor.value.trim()) return toast('请先输入数据');
-      const type = detectType(editor.value, state.fileName);
+      const type = getEffectiveType(editor.value, state.fileName);
       editor.value = type === 'json' ? JSON.stringify(JSON.parse(editor.value), null, 2) : type === 'xml' ? formatXml(editor.value) : type === 'csv' ? csvText(parseCsv(editor.value)) : editor.value.split(/\r?\n/).map(line => line.trimEnd()).join('\n');
       refresh(); toast('格式化完成');
     } catch (error) { toast(`格式化失败：${error.message}`); }
@@ -307,7 +320,7 @@
   $('minifyButton').onclick = () => {
     try {
       if (!editor.value.trim()) return toast('请先输入数据');
-      const type = detectType(editor.value, state.fileName);
+      const type = getEffectiveType(editor.value, state.fileName);
       editor.value = type === 'json' ? JSON.stringify(JSON.parse(editor.value)) : type === 'xml' ? editor.value.replace(/>\s+</g, '><').trim() : type === 'csv' ? csvText(parseCsv(editor.value)) : editor.value.replace(/[ \t]+$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
       refresh(); toast('压缩完成');
     } catch (error) { toast(`压缩失败：${error.message}`); }
