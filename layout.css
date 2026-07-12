@@ -1,0 +1,101 @@
+/* Edge-to-edge IDE workspace overrides */
+:root {
+  --shadow: 0 10px 28px rgba(35, 45, 75, 0.07);
+  --radius: 12px;
+}
+
+.topbar {
+  height: 60px;
+  padding: 0 clamp(8px, 1vw, 14px);
+}
+
+.brand-mark,
+.icon-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+}
+
+.topbar-actions { gap: 7px; }
+
+.workspace {
+  width: calc(100% - 12px);
+  margin: 6px auto 12px;
+}
+
+.toolbar {
+  gap: 10px;
+  margin: 0 0 6px;
+  padding: 7px 8px;
+  border-radius: 10px;
+}
+
+.toolbar-group { gap: 6px; }
+
+.toolbar button,
+.toolbar select,
+.file-button {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 8px;
+}
+
+.format-selector {
+  min-height: 34px;
+  border-radius: 8px;
+}
+
+.format-selector select { min-height: 32px; }
+
+.editor-layout { gap: 6px; }
+.panel-header { height: 48px; padding: 0 12px; }
+
+.editor-body,
+.preview-content {
+  height: clamp(500px, calc(100vh - 238px), 920px);
+  min-height: 420px;
+  max-height: none;
+}
+
+.line-numbers {
+  width: 48px;
+  padding: 14px 10px 14px 0;
+}
+
+#editor,
+.preview-content { padding: 14px; }
+
+.editor-layout.dragging .drop-hint { inset: 48px 0 0; }
+
+.status-grid {
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.status-card {
+  padding: 11px 13px;
+  border-radius: 10px;
+}
+
+.status-label { margin-bottom: 5px; }
+.status-value { font-size: 15px; }
+.status-card p { margin-top: 4px; }
+
+footer { padding: 12px clamp(8px, 1vw, 14px); }
+
+:root.is-fullscreen .workspace { margin-bottom: 6px; }
+:root.is-fullscreen .status-grid,
+:root.is-fullscreen footer { display: none; }
+:root.is-fullscreen .editor-body,
+:root.is-fullscreen .preview-content {
+  height: calc(100vh - 126px);
+  min-height: 0;
+}
+
+@media (max-width: 640px) {
+  .workspace {
+    width: calc(100% - 8px);
+    margin-top: 4px;
+  }
+  .topbar { padding: 0 6px; }
+}
